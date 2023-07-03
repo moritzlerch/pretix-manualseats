@@ -9,7 +9,21 @@
     {% if seatingplans|length > 0 %}
         <p>
             You have imported at least one seating plan 🥸 → {{ seatingplans|length }} seating plans are present
-        </p>
+        </p><br>
+        {% for sp in seatingplans %}
+            <p>{{sp.name}}</p>
+        {% endfor %}
+        <br>
+        <form action="" method="post" class="form-horizontal" >
+            <fieldset>
+                <legend>{% trans "Seating plan selection" %}</legend>
+            </fieldset>
+            <div class="form-group submit-group">
+                <button type="submit" class="btn btn-primary btn-save">
+                    <i class="fa fa-save"></i> {% trans "Save" %}
+                </button>
+            </div>
+        </form>
     {% else %}
         <div class="alert alert-info">
             <p>
