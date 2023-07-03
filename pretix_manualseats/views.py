@@ -4,15 +4,13 @@ from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    CreateView,
-    ListView,
-    TemplateView,
-    UpdateView,
-)
-from pretix.base.models import SeatingPlan
+from django.views.generic import CreateView, ListView, TemplateView, UpdateView
 from pretix.base.forms import I18nModelForm
-from pretix.control.permissions import EventPermissionRequiredMixin, OrganizerPermissionRequiredMixin
+from pretix.base.models import SeatingPlan
+from pretix.control.permissions import (
+    EventPermissionRequiredMixin,
+    OrganizerPermissionRequiredMixin,
+)
 from pretix.helpers.compat import CompatDeleteView
 from pretix.helpers.models import modelcopy
 
@@ -41,7 +39,9 @@ class OrganizerSeatingPlanList(OrganizerPermissionRequiredMixin, ListView):
     permission = "can_change_organizer_settings"
 
     def get_queryset(self):
-        return SeatingPlan.objects.filter(organizer=self.request.organizer).order_by("id")
+        return SeatingPlan.objects.filter(organizer=self.request.organizer).order_by(
+            "id"
+        )
 
 
 class SeatingPlanForm(I18nModelForm):
@@ -56,7 +56,9 @@ class SeatingPlanForm(I18nModelForm):
 class SeatingPlanDetailMixin:
     def get_object(self, queryset=None) -> SeatingPlan:
         try:
-            return SeatingPlan.objects.get(organizer=self.request.organizer, id=self.kwargs["seatingplan"])
+            return SeatingPlan.objects.get(
+                organizer=self.request.organizer, id=self.kwargs["seatingplan"]
+            )
         except SeatingPlan.DoesNotExist:
             raise Http404(_("The requested seating plan does not exist."))
 
@@ -141,9 +143,14 @@ class OrganizerPlanAdd(OrganizerPermissionRequiredMixin, CreateView):
     def copy_from(self):
         if self.request.GET.get("copy_from") and not getattr(self, "object", None):
             try:
-                return SeatingPlan.objects.get(organizer=self.request.organizer, id=self.request.GET.get("copy_from"))
+                return SeatingPlan.objects.get(
+                    organizer=self.request.organizer,
+                    id=self.request.GET.get("copy_from"),
+                )
             except SeatingPlan.DoesNotExist:
-                raise Http404(_("The requested seating plan does not exist. Can't copy!"))
+                raise Http404(
+                    _("The requested seating plan does not exist. Can't copy!")
+                )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -191,7 +198,9 @@ class OrganizerPlanAdd(OrganizerPermissionRequiredMixin, CreateView):
 #         return kwargs
 
 
-class OrganizerPlanEdit(OrganizerPermissionRequiredMixin, SeatingPlanDetailMixin, UpdateView):
+class OrganizerPlanEdit(
+    OrganizerPermissionRequiredMixin, SeatingPlanDetailMixin, UpdateView
+):
     model = SeatingPlan
     form_class = SeatingPlanForm
     template_name = "pretix_manualseats/organizer/form.html"
@@ -226,7 +235,9 @@ class OrganizerPlanEdit(OrganizerPermissionRequiredMixin, SeatingPlanDetailMixin
         return super().form_invalid(form)
 
 
-class OrganizerPlanDelete(OrganizerPermissionRequiredMixin, SeatingPlanDetailMixin, CompatDeleteView):
+class OrganizerPlanDelete(
+    OrganizerPermissionRequiredMixin, SeatingPlanDetailMixin, CompatDeleteView
+):
     model = SeatingPlan
     template_name = "pretix_manualseats/organizer/delete.html"
     context_object_name = "seatingplan"
@@ -235,7 +246,9 @@ class OrganizerPlanDelete(OrganizerPermissionRequiredMixin, SeatingPlanDetailMix
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        self.object.log_action("pretix_manualseats.seatingplan.deleted", user=self.request.user)
+        self.object.log_action(
+            "pretix_manualseats.seatingplan.deleted", user=self.request.user
+        )
         self.object.delete()
         messages.success(request, _("The selected plan has been deleted."))
         self.request.organizer.cache.clear()
