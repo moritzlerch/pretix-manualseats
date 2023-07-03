@@ -1,0 +1,52 @@
+{% extends "pretixcontrol/event/base.html" %}
+{% load i18n %}
+{% load compress %}
+{% load static %}
+{% load eventurl %}
+{% block title %}{% trans "Seating Plans" %}{% endblock %}
+
+{% block content %}
+<h1>{% trans "Seating Plans" %} <small>{% trans "Manual Seats" %} 💺</small></h1>
+    {% if seatingplans|length == 0 %}
+        <div class="empty-collection">
+            <p>
+                {% blocktrans trimmed %}
+                    You haven't added any seating plan yet.
+                {% endblocktrans %}
+            </p>
+
+            <a href="{% url "plugins:pretix_manualseats:add" organizer=request.organizer.slug %}"
+                    class="btn btn-primary btn-lg"><i class="fa fa-plus"></i> {% trans "Add seating plan" %}</a>
+        </div>
+    {% else %}
+        <p>
+            <a href="{% url "plugins:pretix_manualseats:add" organizer=request.organizer.slug %}" class="btn btn-default"><i class="fa fa-plus"></i> {% trans "Add a new seating plan" %}
+            </a>
+        </p>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>{% trans "Name" %}</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for sp in seatingplans %}
+                    <tr>
+                        <td>
+                            <strong><a href="{% url "plugins:pretix_manualseats:edit" organizer=request.organizer.slug seatingplan=sp.id %}">{{ sp.name }}</a></strong>
+                        </td>
+                        <td class="text-right">
+                            <a href="{% url "plugins:pretix_manualseats:edit" organizer=request.organizer.slug seatingplan=sp.id %}" class="btn btn-default btn-sm"><i class="fa fa-edit"></i></a>
+                            <a href="{% url "plugins:pretix_manualseats:add" organizer=request.organizer.slug %}?copy_from={{sp.id}}" class="btn btn-default btn-sm"><i class="fa fa-copy"></i></a>
+                            <a href="{% url "plugins:pretix_manualseats:delete" organizer=request.organizer.slug seatingplan=sp.id %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include "pretixcontrol/pagination.html" %}
+    {% endif %}
+{% endblock %}

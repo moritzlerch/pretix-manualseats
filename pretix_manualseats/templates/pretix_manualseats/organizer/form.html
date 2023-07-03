@@ -1,0 +1,59 @@
+{% extends "pretixcontrol/event/base.html" %}
+{% load i18n %}
+{% load bootstrap3 %}
+{% load static %}
+{% block title %}{% trans "Seating Plan" %}{% endblock %}
+{% block content %}
+    <h1>
+        {% if seatingplan %}
+            {% trans "Seating Plan" %}: {{ seatingplan.name }} <small>(ID: <code>{{ seatingplan.id }}</code>)</small>
+        {% else %}
+            {% trans "Add a new seating plan" %}
+        {% endif %}
+    </h1>
+    <form action="" method="post" class="form-horizontal" data-id="{{ seatingplan.id }}">   
+        {% csrf_token %}
+        {% bootstrap_form_errors form type='non_fields' %}
+        <fieldset>
+            {% bootstrap_field form.name layout="horizontal" %}
+            <div class="form-group">
+                <div class="col-md-9 col-md-offset-3">
+                    <p>
+                        Pretix requires your seating plan to be in a particular format that enables it to comprehend not just the visual representation of the plan, but also its structure and numbering details.
+                    </p>
+                    <p>
+                        At <a href="https://seats.pretix.eu">seats.pretix.eu</a>, you can access a graphical seating plan editor, which allows you to create and edit seating plans in the specified format. Once you're done, you can save the plan to your computer and upload it here to associate it with your events.
+                    </p>
+                    <p>
+                        <a href="https://seats.pretix.eu" class="btn btn-{% if seatingplan %}default{% else %}primary{% endif %}" target="_blank">
+                            <span class="fa fa-external-link"></span> Go to editor
+                        </a>
+                    </p>
+                    <div class="btn-group btn-group-justified">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default" id="layout_download">
+                                <span class="fa fa-download"></span> Download layout
+                            </button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default" id="layout_upload">
+                                <span class="fa fa-upload"></span> Upload layout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% bootstrap_field form.layout layout="horizontal" %}
+        </fieldset>
+        <div class="form-group submit-group">
+            <a href="{% url "plugins:pretix_manualseats:index" organizer=request.organizer.slug %}" class="btn btn-default btn-cancel">
+                {% trans "Cancel" %}
+            </a>
+            <button type="submit" class="btn btn-primary btn-save">
+                <i class="fa fa-save"></i>{% trans "Save" %}
+            </button>
+		</div>
+    </form>
+    <script src="{% static 'pretix_manualseats/seating-edit.js' %}"></script>
+{% endblock %}
+

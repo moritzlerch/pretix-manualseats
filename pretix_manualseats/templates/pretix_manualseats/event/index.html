@@ -1,0 +1,25 @@
+{% extends "pretixcontrol/event/base.html" %}
+{% load i18n %}
+{% load compress %}
+{% load static %}
+{% load eventurl %}
+{% block title %}{% trans "Manual Seats" %}{% endblock %}
+{% block content %}
+    <h1>{% trans "Manual Seats" %} 💺</h1>
+    {% if seatingplans|length > 0 %}
+        <p>
+            You have imported at least one seating plan 🥸 → {{ seatingplans|length }} seating plans are present
+        </p>
+    {% else %}
+        <div class="alert alert-info">
+            <p>
+                There are currently no seating plans configured on your organizer account.
+            </p>
+            <p>
+                <a href="{% url "plugins:pretix_manualseats:index" organizer=request.organizer.slug %}" class="btn btn-default" target="_blank">
+                    Manage seating plans
+                </a>
+            </p>
+        </div>
+    {% endif %}
+{% endblock %}

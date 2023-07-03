@@ -1,0 +1,42 @@
+[project]
+name = "pretix-manualseats"
+dynamic = ["version"]
+description = "Manually assign tickets to seats."
+readme = "README.rst"
+license = {text = "Apache"}
+keywords = ["pretix"]
+authors = [
+    {name = "Moritz Lerch", email = "dev@moritz-lerch.de"},
+]
+maintainers = [
+    {name = "Moritz Lerch", email = "dev@moritz-lerch.de"},
+]
+
+dependencies = [
+]
+
+[project.entry-points."pretix.plugin"]
+pretix_manualseats = "pretix_manualseats:PretixPluginMeta"
+
+[project.entry-points."distutils.commands"]
+build = "pretix_plugin_build.build:CustomBuild"
+
+[build-system]
+requires = [
+    "setuptools",
+    "pretix-plugin-build",
+]
+
+[project.urls]
+homepage = "https://github.com/abi23ohm/pretix-manualseats"
+repository = "https://github.com/abi23ohm/pretix-manualseats"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "pretix_manualseats.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["pretix*"]
+namespaces = false

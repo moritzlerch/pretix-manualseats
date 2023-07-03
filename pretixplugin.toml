@@ -1,0 +1,5 @@
+[plugin]
+package = "pretix-manualseats"
+modules = [ "pretix_manualseats" ]
+marketplace_name = "manualseats"
+
