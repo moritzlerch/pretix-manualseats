@@ -2,15 +2,15 @@ name: Code Style
 
 on:
   push:
-    branches: [ main, master ]
+    # branches: [ main, master ]
     paths-ignore:
-      - 'pretix_manualseats/locale/**'
-      - 'pretix_manualseats/static/**'
+      - "pretix_manualseats/locale/**"
+      - "pretix_manualseats/static/**"
   pull_request:
-    branches: [ main, master ]
+    # branches: [ main, master ]
     paths-ignore:
-      - 'pretix_manualseats/locale/**'
-      - 'pretix_manualseats/static/**'
+      - "pretix_manualseats/locale/**"
+      - "pretix_manualseats/static/**"
 
 jobs:
   isort:
