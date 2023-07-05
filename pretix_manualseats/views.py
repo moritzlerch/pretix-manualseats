@@ -9,12 +9,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    CreateView,
-    FormView,
-    ListView,
-    UpdateView,
-)
+from django.views.generic import CreateView, FormView, ListView, UpdateView
 from pretix.base.forms import I18nModelForm
 from pretix.base.models import Event, Item, Seat, SeatCategoryMapping, SeatingPlan
 from pretix.base.services.seating import generate_seats
