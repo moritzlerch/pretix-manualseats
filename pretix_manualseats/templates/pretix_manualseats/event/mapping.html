@@ -1,0 +1,37 @@
+{% extends "pretixcontrol/event/base.html" %}
+{% load i18n %}
+{% load compress %}
+{% load static %}
+{% load bootstrap3 %}
+{% load eventurl %}
+{% block title %}{% trans "Manual Seats" %}{% endblock %}
+{% block content %}
+    <h1>{% trans "Manual Seata" %} 💺</h1>
+    {% if seatingplan %}
+       <form method="post" class="form-horizontal">{% csrf_token %}
+            <fieldset>
+                <legend>{% trans "Seating plan mapping" %}</legend>
+                {% for field in form %}
+                    {% bootstrap_field field layout="control" %}
+                {% endfor %}
+            </fieldset>
+            <div class="form-group submit-group">
+                <button type="submit" class="btn btn-primary btn-save">
+                    <i class="fa fa-save"></i> {% trans "Save" %}
+                </button>
+            </div>
+        </form>
+       
+    {% else %}
+        <div class="alert alert-info">
+            <p>
+                Please select a seating plan
+            </p>
+            <p>
+                <a href="{% url "plugins:pretix_manualseats:index" organizer=request.organizer.slug event=request.event.slug %}" class="btn btn-default" target="_blank">
+                    Manage event seating plan
+                </a>
+            </p>
+        </div>
+    {%endif%}
+{% endblock %}

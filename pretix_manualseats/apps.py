@@ -10,7 +10,7 @@ class PluginApp(AppConfig):
 
     class PretixPluginMeta:
         name = _("Manual Seats")
-        author = "Moritz Lerch"
+        author = "Moritz Lerch, Mark Oude Elberink"
         description = _("Manually assign tickets to seats.")
         visible = True
         version = __version__
@@ -20,9 +20,5 @@ class PluginApp(AppConfig):
     def ready(self):
         from . import signals  # NOQA
 
-    # def installed(self, event):
-    #     if not event.organizer.seatingplans.exists():
-    #         event.organizer.seatingplans.create(
-    #             name=_("Default"),
-    #             default=True,
-    #         )
+    def installed(self, event):
+        event.settings.seating_choice = False

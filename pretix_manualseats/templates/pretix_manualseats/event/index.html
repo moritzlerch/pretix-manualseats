@@ -2,21 +2,21 @@
 {% load i18n %}
 {% load compress %}
 {% load static %}
+{% load bootstrap3 %}
 {% load eventurl %}
 {% block title %}{% trans "Manual Seats" %}{% endblock %}
 {% block content %}
     <h1>{% trans "Manual Seats" %} 💺</h1>
     {% if seatingplans|length > 0 %}
         <p>
-            You have imported at least one seating plan 🥸 → {{ seatingplans|length }} seating plans are present
+            You have imported at least one seating plan. {{ seatingplans|length }} seating plan{% if seatingplans|length != 1 %}s are{% else %} is {% endif %} present.
         </p><br>
-        {% for sp in seatingplans %}
-            <p>{{sp.name}}</p>
-        {% endfor %}
-        <br>
-        <form action="" method="post" class="form-horizontal" >
+        <form method="post" class="form-horizontal">{% csrf_token %}
             <fieldset>
                 <legend>{% trans "Seating plan selection" %}</legend>
+                {% bootstrap_field form.seatingplan layout="control" %}
+                {% bootstrap_field form.advanced layout="control" %}
+                {% bootstrap_field form.users_edit_seatingplan layout="control" %}
             </fieldset>
             <div class="form-group submit-group">
                 <button type="submit" class="btn btn-primary btn-save">
