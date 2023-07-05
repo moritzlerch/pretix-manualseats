@@ -4,6 +4,7 @@ from typing import Any, Dict
 from django import forms
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Count
 from django.forms.forms import BaseForm
 from django.forms.models import BaseModelForm
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -27,7 +28,7 @@ from pretix.control.permissions import (
 )
 from pretix.helpers.compat import CompatDeleteView
 from pretix.helpers.models import modelcopy
-from django.db.models import Count
+
 
 class EventSeatingPlanSetForm(forms.Form):
     seatingplan = forms.ChoiceField(required=False, label=_("Seating Plan"))
@@ -308,9 +309,11 @@ class OrganizerSeatingPlanList(OrganizerPermissionRequiredMixin, ListView):
     permission = "can_change_organizer_settings"
 
     def get_queryset(self):
-        return SeatingPlan.objects.filter(organizer=self.request.organizer).order_by(
-            "id"
-        ).annotate(eventcount=Count("events"), subeventcount=Count("subevents"))
+        return (
+            SeatingPlan.objects.filter(organizer=self.request.organizer)
+            .order_by("id")
+            .annotate(eventcount=Count("events"), subeventcount=Count("subevents"))
+        )
 
 
 class SeatingPlanForm(I18nModelForm):
@@ -424,17 +427,17 @@ class OrganizerPlanEdit(
         ctx["inuse"] = self.is_in_use()
 
         return ctx
-    
+
     def get_form(self, form_class: type[BaseModelForm] | None = None) -> BaseModelForm:
         form = super().get_form(form_class)
 
-        form.fields['layout'].disabled = self.is_in_use()
+        form.fields["layout"].disabled = self.is_in_use()
 
         return form
 
     @transaction.atomic
     def form_valid(self, form):
-        if self.is_in_use() and self.get_object().layout != self.request.POST['layout']:
+        if self.is_in_use() and self.get_object().layout != self.request.POST["layout"]:
             messages.error(self.request, _("Your changes could not be saved."))
             return super().form_invalid(form)
 
@@ -473,7 +476,9 @@ class OrganizerPlanDelete(
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
         if self.is_in_use():
-            messages.error(self.request, _("You cannot delete this seating plan. It is in use."))
+            messages.error(
+                self.request, _("You cannot delete this seating plan. It is in use.")
+            )
             return HttpResponseRedirect(self.get_success_url())
 
         self.object = self.get_object()
