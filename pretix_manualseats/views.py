@@ -85,11 +85,19 @@ class EventIndex(EventPermissionRequiredMixin, FormView):
 
     def get_form(self, form_class=None) -> BaseForm:
         form = typing.cast(EventSeatingPlanSetForm, super().get_form(form_class))
+
         form.fields["seatingplan"].choices = [(None, "None")] + [
             (i.id, i.name) for i in self.get_seatingplans()
         ]
 
+        form.fields["seatingplan"].disabled = self.seats_in_use()
+
         return form
+
+    def seats_in_use(self):
+        return OrderPosition.objects.filter(
+            order__event=self.get_event(), seat__isnull=False
+        ).exists()
 
     def form_valid(self, form):
         seatingplan_id = form.cleaned_data["seatingplan"]
@@ -104,11 +112,12 @@ class EventIndex(EventPermissionRequiredMixin, FormView):
 
         event.save()
 
-        if event.seating_plan:
-            generate_seats(event, None, event.seating_plan, dict(), None)
-        else:
-            SeatCategoryMapping.objects.filter(event=event).delete()
-            Seat.objects.filter(event=event).delete()
+        if not self.seats_in_use():
+            if event.seating_plan:
+                generate_seats(event, None, event.seating_plan, dict(), None)
+            else:
+                SeatCategoryMapping.objects.filter(event=event).delete()
+                Seat.objects.filter(event=event).delete()
 
         messages.success(self.request, _("Your changes have been saved."))
 
@@ -179,6 +188,7 @@ class EventMapping(EventPermissionRequiredMixin, FormView):
                     + [(None, "None")],
                     required=False,
                 )
+
         return form
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
