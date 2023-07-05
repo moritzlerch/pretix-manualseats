@@ -39,6 +39,18 @@ def control_nav_manualseats(sender, request=None, **kwargs):
                     "active": (url.namespace == "plugins:pretix_manualseats"),
                     "icon": seat_icon,
                 },
+                {
+                    "label": _("Seating importer"),
+                    "url": reverse(
+                        "plugins:pretix_manualseats:import",
+                        kwargs={
+                            "event": request.event.slug,
+                            "organizer": request.organizer.slug,
+                        },
+                    ),
+                    "active": (url.namespace == "plugins:pretix_manualseats"),
+                    "icon": seat_icon,
+                },
             ],
         },
     ]

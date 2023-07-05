@@ -14,6 +14,11 @@ urlpatterns = [
         name="mapping",
     ),
     path(
+        "control/event/<str:organizer>/<str:event>/manualseats/import/",
+        views.EventImport.as_view(),
+        name="import",
+    ),
+    path(
         "control/organizer/<str:organizer>/manualseats/",
         views.OrganizerSeatingPlanList.as_view(),
         name="index",

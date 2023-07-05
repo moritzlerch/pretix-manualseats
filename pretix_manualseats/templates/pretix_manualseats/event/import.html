@@ -1,0 +1,59 @@
+{% extends "pretixcontrol/event/base.html" %}
+{% load i18n %}
+{% load compress %}
+{% load static %}
+{% load bootstrap3 %}
+{% load eventurl %}
+{% block title %}{% trans "Manual Seats" %}{% endblock %}
+{% block content %}
+    <h1>{% trans "Manual Seata" %} 💺</h1>
+    <script type="text/plain" id="seat-csv">
+{{ seatscsv }}
+    </script>
+
+    <script type="text/plain" id="orderpositions-csv">
+{{ orderpositionscsv }}
+    </script>
+
+    {% if seatingplan %}
+       <form method="post" class="form-horizontal">{% csrf_token %}
+            <fieldset>
+                <legend>{% trans "Seating plan import" %}</legend>
+                {% for field in form %}
+                    {% bootstrap_field field layout="control" %}
+                {% endfor %}
+
+                <div class="btn-group btn-group-justified">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default" id="download-seat">
+                                <span class="fa fa-download"></span> Download seats
+                            </button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default" id="download-orderpos">
+                                <span class="fa fa-download"></span> Download order position secrets
+                            </button>
+                        </div>
+                    </div>
+            </fieldset>
+            <div class="form-group submit-group">
+                <button type="submit" class="btn btn-primary btn-save">
+                    <i class="fa fa-save"></i> {% trans "Save" %}
+                </button>
+            </div>
+        </form>
+    {% else %}
+        <div class="alert alert-info">
+            <p>
+                Please select a seating plan
+            </p>
+            <p>
+                <a href="{% url "plugins:pretix_manualseats:index" organizer=request.organizer.slug event=request.event.slug %}" class="btn btn-default" target="_blank">
+                    Manage event seating plan
+                </a>
+            </p>
+        </div>
+    {%endif%}
+
+    <script src="{% static 'pretix_manualseats/import-download.js' %}"></script>
+{% endblock %}

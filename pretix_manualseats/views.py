@@ -11,7 +11,14 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, FormView, ListView, UpdateView
 from pretix.base.forms import I18nModelForm
-from pretix.base.models import Event, Item, Seat, SeatCategoryMapping, SeatingPlan
+from pretix.base.models import (
+    Event,
+    Item,
+    OrderPosition,
+    Seat,
+    SeatCategoryMapping,
+    SeatingPlan,
+)
 from pretix.base.services.seating import generate_seats
 from pretix.control.permissions import (
     EventPermissionRequiredMixin,
@@ -186,6 +193,106 @@ class EventMapping(EventPermissionRequiredMixin, FormView):
                         event=event, layout_category=cat.name, product=product
                     )
                     queryset.save()
+
+        messages.success(self.request, _("Your changes have been saved."))
+
+        return super().form_valid(form)
+
+
+class EventImportForm(forms.Form):
+    data = forms.CharField(
+        widget=forms.Textarea(),
+        label="Raw Data",
+        help_text="header should equal: seat_guid,orderposition_secret",
+        required=False,
+    )
+
+    pass
+
+
+class EventImport(EventPermissionRequiredMixin, FormView):
+    template_name = "pretix_manualseats/event/import.html"
+    permission = "can_change_orders"
+    form_class = EventImportForm
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "plugins:pretix_manualseats:import",
+            kwargs={
+                "organizer": self.get_event().organizer.slug,
+                "event": self.get_event().slug,
+            },
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["seatingplan"] = self.get_seating_plan()
+        if self.get_seating_plan():
+            ctx["seatingcats"] = [
+                c.name for c in self.get_seating_plan().get_categories()
+            ]
+        ctx["items"] = self.get_event().items.all()
+        ctx["seats"] = Seat.objects.filter(event=self.get_event())
+        ctx["seatscsv"] = "seat_guid\n" + "\n".join(
+            [seat.seat_guid for seat in Seat.objects.filter(event=self.get_event())]
+        )
+        ctx["orderpositionscsv"] = "orderposition_secret\n" + "\n".join(
+            [
+                pos.secret
+                for pos in OrderPosition.objects.filter(order__event=self.get_event())
+            ]
+        )
+
+        return ctx
+
+    def get_event(self) -> Event:
+        return self.request.event
+
+    def get_seating_plan(self) -> Event:
+        return self.get_event().seating_plan
+
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+
+        return initial
+
+    def form_valid(self, form: BaseForm) -> HttpResponse:
+        event = self.get_event()
+
+        if not event.seating_plan:
+            messages.error(self.request, _("No seating plan"))
+            return super().form_invalid(form)
+
+        data = typing.cast(str, form.cleaned_data["data"])
+        lines = data.split("\n")
+        lines = [line.strip() for line in lines]
+
+        if len(lines) <= 1:
+            OrderPosition.objects.filter(order__event=event).update(seat=None)
+            messages.success(self.request, _("Removed all seat assignments"))
+            return super().form_valid(form)
+
+        if not (lines[0].startswith("seat_guid,orderposition_secret")):
+            messages.error(self.request, _("Invalid Format"))
+            return super().form_invalid(form)
+
+        for line in lines[1:]:
+            (seat_guid, orderposition_secret) = [
+                line.strip() for line in line.split(",")
+            ]
+            order = OrderPosition.objects.filter(secret=orderposition_secret).first()
+            seat = Seat.objects.filter(seat_guid=seat_guid).first()
+            if not order:
+                messages.error(
+                    self.request, _(f"Unable to match order ({orderposition_secret})")
+                )
+                return super().form_invalid(form)
+            if not seat:
+                messages.error(self.request, _(f"Unable to match seat ({seat_guid})"))
+                return super().form_invalid(form)
+
+            order.seat = seat
+            order.save()
 
         messages.success(self.request, _("Your changes have been saved."))
 
