@@ -28,7 +28,7 @@ def control_nav_manualseats(sender, request=None, **kwargs):
             "icon": seat_icon,
             "children": [
                 {
-                    "label": _("Seating mapping"),
+                    "label": _("Seating Mapping"),
                     "url": reverse(
                         "plugins:pretix_manualseats:mapping",
                         kwargs={
@@ -40,7 +40,7 @@ def control_nav_manualseats(sender, request=None, **kwargs):
                     "icon": seat_icon,
                 },
                 {
-                    "label": _("Seating importer"),
+                    "label": _("Seating Importer"),
                     "url": reverse(
                         "plugins:pretix_manualseats:import",
                         kwargs={
