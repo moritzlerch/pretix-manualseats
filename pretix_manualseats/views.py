@@ -285,7 +285,12 @@ class EventImport(EventPermissionRequiredMixin, FormView):
             return super().form_valid(form)
 
         if not (lines[0].startswith("seat_guid,orderposition_secret")):
-            messages.error(self.request, _("The CSV input format is invalid. Please check if you have included the headers."))
+            messages.error(
+                self.request,
+                _(
+                    "The CSV input format is invalid. Please check if you have included the headers."
+                ),
+            )
             return super().form_invalid(form)
 
         for line in lines[1:]:
@@ -499,7 +504,10 @@ class OrganizerPlanDelete(
     def delete(self, request, *args, **kwargs):
         if self.is_in_use():
             messages.error(
-                self.request, _("You cannot delete the seating plan because it is used in some of your events.")
+                self.request,
+                _(
+                    "You cannot delete the seating plan because it is used in some of your events."
+                ),
             )
             return HttpResponseRedirect(self.get_success_url())
 
