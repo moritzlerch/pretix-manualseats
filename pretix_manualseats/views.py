@@ -5,6 +5,7 @@ from django import forms
 from django.contrib import messages
 from django.db import transaction
 from django.forms.forms import BaseForm
+from django.forms.models import BaseModelForm
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.functional import cached_property
@@ -26,7 +27,7 @@ from pretix.control.permissions import (
 )
 from pretix.helpers.compat import CompatDeleteView
 from pretix.helpers.models import modelcopy
-
+from django.db.models import Count
 
 class EventSeatingPlanSetForm(forms.Form):
     seatingplan = forms.ChoiceField(required=False, label=_("Seating Plan"))
@@ -309,7 +310,7 @@ class OrganizerSeatingPlanList(OrganizerPermissionRequiredMixin, ListView):
     def get_queryset(self):
         return SeatingPlan.objects.filter(organizer=self.request.organizer).order_by(
             "id"
-        )
+        ).annotate(eventcount=Count("events"), subeventcount=Count("subevents"))
 
 
 class SeatingPlanForm(I18nModelForm):
@@ -335,6 +336,9 @@ class SeatingPlanDetailMixin:
             "plugins:pretix_manualseats:index",
             kwargs={"organizer": self.request.organizer.slug},
         )
+
+    def is_in_use(self) -> bool:
+        return self.get_object().events.exists() or self.get_object().subevents.exists()
 
 
 class OrganizerPlanAdd(OrganizerPermissionRequiredMixin, CreateView):
@@ -414,17 +418,35 @@ class OrganizerPlanEdit(
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data()
+
+        self.get_object()
+
+        ctx["inuse"] = self.is_in_use()
+
         return ctx
+    
+    def get_form(self, form_class: type[BaseModelForm] | None = None) -> BaseModelForm:
+        form = super().get_form(form_class)
+
+        form.fields['layout'].disabled = self.is_in_use()
+
+        return form
 
     @transaction.atomic
     def form_valid(self, form):
+        if self.is_in_use() and self.get_object().layout != self.request.POST['layout']:
+            messages.error(self.request, _("Your changes could not be saved."))
+            return super().form_invalid(form)
+
         messages.success(self.request, _("Your changes have been saved."))
+
         if form.has_changed():
             self.object.log_action(
                 "pretix_seatingplan.seatingplan.changed",
                 data=dict(form.cleaned_data),
                 user=self.request.user,
             )
+
         self.request.organizer.cache.clear()
         return super().form_valid(form)
 
@@ -441,8 +463,19 @@ class OrganizerPlanDelete(
     context_object_name = "seatingplan"
     permission = "can_change_organizer_settings"
 
+    def get_context_data(self, **kwargs: Any):
+        ctx = super().get_context_data(**kwargs)
+
+        ctx["inuse"] = self.is_in_use()
+
+        return ctx
+
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
+        if self.is_in_use():
+            messages.error(self.request, _("You cannot delete this seating plan. It is in use."))
+            return HttpResponseRedirect(self.get_success_url())
+
         self.object = self.get_object()
         self.object.log_action(
             "pretix_manualseats.seatingplan.deleted", user=self.request.user
