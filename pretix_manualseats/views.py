@@ -447,8 +447,15 @@ class OrganizerPlanEdit(
 
     @transaction.atomic
     def form_valid(self, form):
-        if self.is_in_use() and self.request.POST.get("layout") and self.get_object().layout != self.request.POST["layout"]:
-            messages.error(self.request, _("Your changes could not be saved. The plan already is in use!"))
+        if (
+            self.is_in_use()
+            and self.request.POST.get("layout")
+            and self.get_object().layout != self.request.POST["layout"]
+        ):
+            messages.error(
+                self.request,
+                _("Your changes could not be saved. The plan already is in use!"),
+            )
             return super().form_invalid(form)
 
         messages.success(self.request, _("Your changes have been saved."))
