@@ -285,7 +285,7 @@ class EventImport(EventPermissionRequiredMixin, FormView):
             return super().form_valid(form)
 
         if not (lines[0].startswith("seat_guid,orderposition_secret")):
-            messages.error(self.request, _("Invalid Format"))
+            messages.error(self.request, _("The CSV input format is invalid. Please check if you have included the headers."))
             return super().form_invalid(form)
 
         for line in lines[1:]:
@@ -443,6 +443,11 @@ class OrganizerPlanEdit(
 
         form.fields["layout"].disabled = self.is_in_use()
 
+        if self.is_in_use():
+            form.fields["layout"].help_text = _(
+                "You cannot change this plan any more since it is already used in some of your events. Please create a copy instead."
+            )
+
         return form
 
     @transaction.atomic
@@ -454,7 +459,7 @@ class OrganizerPlanEdit(
         ):
             messages.error(
                 self.request,
-                _("Your changes could not be saved. The plan already is in use!"),
+                _("Your changes could not be saved. The plan already is in use."),
             )
             return super().form_invalid(form)
 
@@ -494,7 +499,7 @@ class OrganizerPlanDelete(
     def delete(self, request, *args, **kwargs):
         if self.is_in_use():
             messages.error(
-                self.request, _("You cannot delete this seating plan. It is in use.")
+                self.request, _("You cannot delete the seating plan because it is used in some of your events.")
             )
             return HttpResponseRedirect(self.get_success_url())
 

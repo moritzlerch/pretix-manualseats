@@ -6,11 +6,11 @@
 {% load eventurl %}
 {% block title %}{% trans "Manual Seats" %}{% endblock %}
 {% block content %}
-    <h1>{% trans "Manual Seata" %} 💺</h1>
+    <h1>{% trans "Manual Seats" %} 💺</h1>
     {% if seatingplan %}
        <form method="post" class="form-horizontal">{% csrf_token %}
             <fieldset>
-                <legend>{% trans "Seating plan mapping" %}</legend>
+                <legend>{% trans "Seating Plan Mapping" %}</legend>
                 {% for field in form %}
                     {% bootstrap_field field layout="control" %}
                 {% endfor %}
@@ -25,11 +25,9 @@
     {% else %}
         <div class="alert alert-info">
             <p>
-                Please select a seating plan
-            </p>
-            <p>
-                <a href="{% url "plugins:pretix_manualseats:index" organizer=request.organizer.slug event=request.event.slug %}" class="btn btn-default" target="_blank">
-                    Manage event seating plan
+                Please select a seating plan for your current event.
+                <a href="{% url "plugins:pretix_manualseats:index" organizer=request.organizer.slug event=request.event.slug %}" class="btn btn-info" target="_blank">
+                    <span class="fa fa-cogs"></span> Manage event seating plan
                 </a>
             </p>
         </div>
