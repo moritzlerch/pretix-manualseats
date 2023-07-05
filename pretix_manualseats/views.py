@@ -9,9 +9,14 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, FormView, ListView, UpdateView, TemplateView
+from django.views.generic import (
+    CreateView,
+    FormView,
+    ListView,
+    UpdateView,
+)
 from pretix.base.forms import I18nModelForm
-from pretix.base.models import Event, SeatingPlan, SeatCategoryMapping, Seat,Item
+from pretix.base.models import Event, Item, Seat, SeatCategoryMapping, SeatingPlan
 from pretix.base.services.seating import generate_seats
 from pretix.control.permissions import (
     EventPermissionRequiredMixin,
@@ -19,23 +24,19 @@ from pretix.control.permissions import (
 )
 from pretix.helpers.compat import CompatDeleteView
 from pretix.helpers.models import modelcopy
-import typing
 
 
 class EventSeatingPlanSetForm(forms.Form):
     seatingplan = forms.ChoiceField(required=False, label=_("Seating Plan"))
-    advanced = forms.BooleanField(
-        label=_("Advanced Settings"),
-        required=False
-    )
+    advanced = forms.BooleanField(label=_("Advanced Settings"), required=False)
     users_edit_seatingplan = forms.BooleanField(
         label=_("Customers can choose their own seats"),
-        widget=forms.CheckboxInput(attrs={'data-display-dependency': '#id_advanced'}),
+        widget=forms.CheckboxInput(attrs={"data-display-dependency": "#id_advanced"}),
         help_text=_(
             "If disabled, you will need to manually assign seats in the backend. "
             "Note that this can mean people will not know their seat after their purchase and it might not be written on their ticket."
         ),
-        required=False
+        required=False,
     )
 
     class Meta:
@@ -98,7 +99,7 @@ class EventIndex(EventPermissionRequiredMixin, FormView):
                 event.seating_plan = None
 
         event.save()
-        
+
         if event.seating_plan:
             generate_seats(event, None, event.seating_plan, dict(), None)
         else:
@@ -108,9 +109,11 @@ class EventIndex(EventPermissionRequiredMixin, FormView):
         messages.success(self.request, _("Your changes have been saved."))
 
         return super().form_valid(form)
-    
+
+
 class EventMappingForm(forms.Form):
     pass
+
 
 class EventMapping(EventPermissionRequiredMixin, FormView):
     template_name = "pretix_manualseats/event/mapping.html"
@@ -133,7 +136,9 @@ class EventMapping(EventPermissionRequiredMixin, FormView):
         ctx = super().get_context_data(**kwargs)
         ctx["seatingplan"] = self.get_seating_plan()
         if self.get_seating_plan():
-            ctx["seatingcats"] = [c.name for c in self.get_seating_plan().get_categories()]
+            ctx["seatingcats"] = [
+                c.name for c in self.get_seating_plan().get_categories()
+            ]
         ctx["items"] = self.get_event().items.all()
 
         return ctx
@@ -143,7 +148,7 @@ class EventMapping(EventPermissionRequiredMixin, FormView):
 
     def get_seating_plan(self) -> Event:
         return self.get_event().seating_plan
-    
+
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
 
@@ -151,9 +156,11 @@ class EventMapping(EventPermissionRequiredMixin, FormView):
 
         if self.get_seating_plan():
             for cat in self.get_seating_plan().get_categories():
-                l = SeatCategoryMapping.objects.filter(event=event, layout_category=cat.name).first()
-                if l:
-                    initial[f"cat-{cat.name}"] = l.product.id
+                mapping = SeatCategoryMapping.objects.filter(
+                    event=event, layout_category=cat.name
+                ).first()
+                if mapping:
+                    initial[f"cat-{cat.name}"] = mapping.product.id
 
         return initial
 
@@ -162,19 +169,29 @@ class EventMapping(EventPermissionRequiredMixin, FormView):
 
         if self.get_seating_plan():
             for cat in self.get_seating_plan().get_categories():
-                form.fields[f"cat-{cat.name}"] = forms.ChoiceField(label=cat.name, choices=[(i.id, i.name) for i in self.get_event().items.all()] + [(None,"None")] ,required=False)
-
+                form.fields[f"cat-{cat.name}"] = forms.ChoiceField(
+                    label=cat.name,
+                    choices=[(i.id, i.name) for i in self.get_event().items.all()]
+                    + [(None, "None")],
+                    required=False,
+                )
         return form
+
     def form_valid(self, form: BaseForm) -> HttpResponse:
         event = self.get_event()
         SeatCategoryMapping.objects.filter(event=event).delete()
-        
+
         if self.get_seating_plan():
             for cat in self.get_seating_plan().get_categories():
                 if form.cleaned_data[f"cat-{cat.name}"]:
-                    queryset = SeatCategoryMapping.objects.create(event=event, layout_category=cat.name, product=Item.objects.filter(id=form.cleaned_data[f"cat-{cat.name}"]).first())
+                    product = Item.objects.filter(
+                        id=form.cleaned_data[f"cat-{cat.name}"]
+                    ).first()
+                    queryset = SeatCategoryMapping.objects.create(
+                        event=event, layout_category=cat.name, product=product
+                    )
                     queryset.save()
-        
+
         messages.success(self.request, _("Your changes have been saved."))
 
         return super().form_valid(form)
@@ -184,7 +201,7 @@ class OrganizerSeatingPlanList(OrganizerPermissionRequiredMixin, ListView):
     model = SeatingPlan
     context_object_name = "seatingplans"
     paginate_by = 20
-    template_name = "pretix_manualseats/organizer/index.html"   
+    template_name = "pretix_manualseats/organizer/index.html"
     permission = "can_change_organizer_settings"
 
     def get_queryset(self):

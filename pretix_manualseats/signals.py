@@ -26,7 +26,7 @@ def control_nav_manualseats(sender, request=None, **kwargs):
             ),
             "active": (url.namespace == "plugins:pretix_manualseats"),
             "icon": seat_icon,
-            "children":[
+            "children": [
                 {
                     "label": _("Seating mapping"),
                     "url": reverse(
@@ -38,9 +38,8 @@ def control_nav_manualseats(sender, request=None, **kwargs):
                     ),
                     "active": (url.namespace == "plugins:pretix_manualseats"),
                     "icon": seat_icon,
-                    
                 },
-            ]
+            ],
         },
     ]
 
