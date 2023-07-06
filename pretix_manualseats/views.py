@@ -215,7 +215,7 @@ class EventImportForm(forms.Form):
     data = forms.CharField(
         widget=forms.Textarea(),
         label="Raw Data",
-        help_text="header should equal: seat_guid,orderposition_secret",
+        help_text="Header should equal: <code>seat_guid,orderposition_secret</code>",
         required=False,
     )
 
@@ -283,7 +283,7 @@ class EventImport(EventPermissionRequiredMixin, FormView):
 
         if len(lines) <= 1:
             OrderPosition.objects.filter(order__event=event).update(seat=None)
-            messages.success(self.request, _("Removed all seat assignments"))
+            messages.success(self.request, _("Removed all seat assignments."))
             return super().form_valid(form)
 
         if not (lines[0].startswith("seat_guid,orderposition_secret")):
@@ -303,11 +303,11 @@ class EventImport(EventPermissionRequiredMixin, FormView):
             seat = Seat.objects.filter(seat_guid=seat_guid).first()
             if not order:
                 messages.error(
-                    self.request, _(f"Unable to match order ({orderposition_secret})")
+                    self.request, _(f"Unable to match order ({orderposition_secret}).")
                 )
                 return super().form_invalid(form)
             if not seat:
-                messages.error(self.request, _(f"Unable to match seat ({seat_guid})"))
+                messages.error(self.request, _(f"Unable to match seat ({seat_guid})."))
                 return super().form_invalid(form)
 
             order.seat = seat
