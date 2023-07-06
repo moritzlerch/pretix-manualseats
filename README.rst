@@ -51,3 +51,16 @@ Released under the terms of the Apache License 2.0
 
 .. _pretix: https://github.com/pretix/pretix
 .. _pretix development setup: https://docs.pretix.eu/en/latest/development/setup.html
+
+
+## Internal Usage
+
+```Dockerfile
+FROM ghcr.io/abi23ohm/pretix-manualseats as pretix_manualseats
+
+FROM pretix...
+
+...
+COPY --from=pretix_manualseats /plugins/pretix_manualseats /plugins/pretix_manualseats
+RUN pip install -e /plugins/pretix_manualseats
+```
