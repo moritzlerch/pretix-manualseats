@@ -56,7 +56,7 @@ Released under the terms of the Apache License 2.0
 ## Internal Usage
 
 ```Dockerfile
-FROM ghcr.io/abi23ohm/pretix_manualseats as pretix_manualseats
+FROM ghcr.io/abi23ohm/pretix-manualseats as pretix_manualseats
 
 FROM pretix...
 
