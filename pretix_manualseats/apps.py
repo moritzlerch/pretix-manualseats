@@ -21,4 +21,4 @@ class PluginApp(AppConfig):
         from . import signals  # NOQA
 
     def installed(self, event):
-        event.settings.set("seating_choice", False)
+        event.settings.seating_choice = False  # hierarkey speichert selber
