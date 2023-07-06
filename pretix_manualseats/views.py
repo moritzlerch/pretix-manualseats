@@ -245,15 +245,6 @@ class EventImport(EventPermissionRequiredMixin, FormView):
             ]
         ctx["items"] = self.get_event().items.all()
         ctx["seats"] = Seat.objects.filter(event=self.get_event())
-        ctx["seatscsv"] = "seat_guid\n" + "\n".join(
-            [seat.seat_guid for seat in Seat.objects.filter(event=self.get_event())]
-        )
-        ctx["orderpositionscsv"] = "orderposition_secret\n" + "\n".join(
-            [
-                pos.secret
-                for pos in OrderPosition.objects.filter(order__event=self.get_event())
-            ]
-        )
 
         return ctx
 
@@ -265,6 +256,17 @@ class EventImport(EventPermissionRequiredMixin, FormView):
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
+
+        orderpositions_with_seats = OrderPosition.objects.filter(
+            order__event=self.get_event(), seat__isnull=False
+        )
+        if orderpositions_with_seats:
+            initial["data"] = "seat_guid,orderposition_secret\n" + "\n".join(
+                [
+                    pos.seat.seat_guid + "," + pos.secret
+                    for pos in orderpositions_with_seats.select_related("seat")
+                ]
+            )
 
         return initial
 
