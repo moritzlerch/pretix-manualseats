@@ -6,14 +6,20 @@
 	<h1>{% trans "Delete seating plan" %}: {{ seatingplan.name }} <small>(ID: <code>{{ seatingplan.id }}</code>)</small></h1>
 	<form action="" method="post" class="form-horizontal">
 		{% csrf_token %}
-		<p>{% blocktrans trimmed with name=seatingplan.name %}
-            Are you sure you want to delete the seating plan „{{name}}“?
-        {% endblocktrans %}</p>
+        {% if inuse %}
+            <div class="alert alert-danger">
+                <p>You cannot delete the seating plan because it is used in some of your events.</p>
+            </div>
+        {% else %}
+            <p>{% blocktrans trimmed with name=seatingplan.name %}
+                Are you sure you want to delete the seating plan „{{name}}“?
+            {% endblocktrans %}</p>
+        {% endif %}
 		<div class="form-group submit-group">
             <a href="{% url "plugins:pretix_manualseats:index" organizer=request.organizer.slug %}" class="btn btn-default btn-cancel">
                 {% trans "Cancel" %}
             </a>
-            <button type="submit" class="btn btn-danger btn-save">
+            <button type="submit" class="btn btn-danger btn-save" {% if inuse %}disabled{% endif %}>
                 <i class="fa fa-trash"></i>{% trans "Delete" %}
             </button>
 		</div>

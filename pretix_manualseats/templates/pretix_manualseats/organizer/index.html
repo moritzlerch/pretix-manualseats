@@ -35,12 +35,18 @@
                 {% for sp in seatingplans %}
                     <tr>
                         <td>
-                            <strong><a href="{% url "plugins:pretix_manualseats:edit" organizer=request.organizer.slug seatingplan=sp.id %}">{{ sp.name }}</a></strong>
+                            <strong><a href="{% url "plugins:pretix_manualseats:edit" organizer=request.organizer.slug seatingplan=sp.id %}">{{ sp.name }}</a></strong> 
+                            
+                            {% if sp.eventcount|add:sp.subeventcount >= 1 %}
+                                <span class="label label-danger">{% trans "Used" %}</span>
+                            {% else %}
+                                <span class="label label-success">{% trans "Not used" %}</span>
+                            {% endif %}
                         </td>
                         <td class="text-right">
                             <a href="{% url "plugins:pretix_manualseats:edit" organizer=request.organizer.slug seatingplan=sp.id %}" class="btn btn-default btn-sm"><i class="fa fa-edit"></i></a>
                             <a href="{% url "plugins:pretix_manualseats:add" organizer=request.organizer.slug %}?copy_from={{sp.id}}" class="btn btn-default btn-sm"><i class="fa fa-copy"></i></a>
-                            <a href="{% url "plugins:pretix_manualseats:delete" organizer=request.organizer.slug seatingplan=sp.id %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+                            <a href="{% url "plugins:pretix_manualseats:delete" organizer=request.organizer.slug seatingplan=sp.id %}" class="btn btn-danger btn-sm {% if sp.eventcount or sp.subeventcount %}disabled{% endif %}"><i class="fa fa-trash"></i></a>
                         </td>
                     </tr>
                 {% endfor %}

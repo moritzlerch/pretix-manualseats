@@ -1,31 +1,25 @@
 $(() => {
-    const uploadLayoutBtn = $("#upload_layout");
-    const downloadLayoutBtn = $("#download_layout");
-    const idLayout = $("#id_layout");
-
-    function searchJson(json, key) {
-        if (typeof json === 'object' || json !== null) {
-            value = JSON.parse(json)[key];
-            return value || null;
-        }
-    }
+    const downloadAssignedSeatsBtn = $("#download_assignedseats");
+    const uploadAssignedSeatsBtn = $("#upload_assignedseats");
+    const clearAssignedSeatsBtn = $("#clear_assignedseats");
+    const idData = $("#id_data");
 
     function updateDownloadButton() {
-        downloadLayoutBtn.prop("disabled", !idLayout.val());
+        downloadAssignedSeatsBtn.prop("disabled", !idData.val().startsWith("seat_guid,orderposition_secret\n"));
     }
 
-    idLayout.on("change", updateDownloadButton());
+    idData.on("change", updateDownloadButton());
 
-    uploadLayoutBtn.on("click", () => {
+    uploadAssignedSeatsBtn.on("click", () => {
         const input = document.createElement("input");
         input.type = "file";
-        input.accept = ".json";
+        input.accept = ".csv";
         input.onchange = (e) => {
             const file = e.target.files[0];
             const reader = new FileReader();
             reader.onload = (e) => {
                 const contents = e.target.result;
-                idLayout.val(contents);
+                idData.val(contents);
                 updateDownloadButton();
             };
             reader.readAsText(file);
@@ -33,15 +27,14 @@ $(() => {
         input.click();
     });
 
-    downloadLayoutBtn.on("click", () => {
-        const data = idLayout.val();
-        const name = searchJson(idLayout.val(), "name");
-        const filename = name ? (name + ".json") : "seatingplan.json";
+    downloadAssignedSeatsBtn.on("click", () => {
+        const data = idData.val();
+        const filename = "assignedseats.csv";
         download(data, filename);
     });
 
     clearAssignedSeatsBtn.on("click", () => {
-        idLayout.val("");
+        idData.val("");
         updateDownloadButton();
     });
 });

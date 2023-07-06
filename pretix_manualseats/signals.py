@@ -26,6 +26,32 @@ def control_nav_manualseats(sender, request=None, **kwargs):
             ),
             "active": (url.namespace == "plugins:pretix_manualseats"),
             "icon": seat_icon,
+            "children": [
+                {
+                    "label": _("Seating Mapping"),
+                    "url": reverse(
+                        "plugins:pretix_manualseats:mapping",
+                        kwargs={
+                            "event": request.event.slug,
+                            "organizer": request.organizer.slug,
+                        },
+                    ),
+                    "active": (url.namespace == "plugins:pretix_manualseats"),
+                    "icon": seat_icon,
+                },
+                {
+                    "label": _("Seating Importer"),
+                    "url": reverse(
+                        "plugins:pretix_manualseats:import",
+                        kwargs={
+                            "event": request.event.slug,
+                            "organizer": request.organizer.slug,
+                        },
+                    ),
+                    "active": (url.namespace == "plugins:pretix_manualseats"),
+                    "icon": seat_icon,
+                },
+            ],
         },
     ]
 

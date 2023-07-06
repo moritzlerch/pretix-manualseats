@@ -1,12 +1,27 @@
+import typing
+from typing import Any, Dict
+
+from django import forms
 from django.contrib import messages
 from django.db import transaction
-from django.http import Http404, HttpResponseRedirect
+from django.db.models import Count
+from django.forms.forms import BaseForm
+from django.forms.models import BaseModelForm
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, ListView, TemplateView, UpdateView
+from django.views.generic import CreateView, FormView, ListView, UpdateView
 from pretix.base.forms import I18nModelForm
-from pretix.base.models import SeatingPlan
+from pretix.base.models import (
+    Event,
+    Item,
+    OrderPosition,
+    Seat,
+    SeatCategoryMapping,
+    SeatingPlan,
+)
+from pretix.base.services.seating import generate_seats
 from pretix.control.permissions import (
     EventPermissionRequiredMixin,
     OrganizerPermissionRequiredMixin,
@@ -15,20 +30,292 @@ from pretix.helpers.compat import CompatDeleteView
 from pretix.helpers.models import modelcopy
 
 
-class EventIndex(EventPermissionRequiredMixin, TemplateView):
+class EventSeatingPlanSetForm(forms.Form):
+    seatingplan = forms.ChoiceField(required=False, label=_("Seating Plan"))
+    advanced = forms.BooleanField(label=_("Advanced Settings"), required=False)
+    users_edit_seatingplan = forms.BooleanField(
+        label=_("Customers can choose their own seats"),
+        widget=forms.CheckboxInput(attrs={"data-display-dependency": "#id_advanced"}),
+        help_text=_(
+            "If disabled, you will need to manually assign seats in the backend. "
+            "Note that this can mean people will not know their seat after their purchase and it might not be written on their ticket."
+        ),
+        required=False,
+    )
+
+    class Meta:
+        fields = ["users_edit_seatingplan", "seatingplan"]
+
+
+class EventIndex(EventPermissionRequiredMixin, FormView):
     model = SeatingPlan
-    # context_object_name = "seatingplans"
     template_name = "pretix_manualseats/event/index.html"
     permission = "can_change_orders"
+    form_class = EventSeatingPlanSetForm
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "plugins:pretix_manualseats:index",
+            kwargs={
+                "organizer": self.get_event().organizer.slug,
+                "event": self.get_event().slug,
+            },
+        )
 
     def get_seatingplans(self):
         return SeatingPlan.objects.filter(organizer=self.request.organizer)
 
     def get_context_data(self, **kwargs):
-        ctx = super().get_context_data()
+        ctx = super().get_context_data(**kwargs)
         ctx["seatingplans"] = self.get_seatingplans()
 
         return ctx
+
+    def get_event(self) -> Event:
+        return self.request.event
+
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+
+        event = self.get_event()
+        initial["seatingplan"] = event.seating_plan.id if event.seating_plan else "None"
+        initial["users_edit_seatingplan"] = event.settings.seating_choice
+
+        return initial
+
+    def get_form(self, form_class=None) -> BaseForm:
+        form = typing.cast(EventSeatingPlanSetForm, super().get_form(form_class))
+
+        form.fields["seatingplan"].choices = [(None, "None")] + [
+            (i.id, i.name) for i in self.get_seatingplans()
+        ]
+
+        form.fields["seatingplan"].disabled = self.seats_in_use()
+
+        return form
+
+    def seats_in_use(self):
+        return OrderPosition.objects.filter(
+            order__event=self.get_event(), seat__isnull=False
+        ).exists()
+
+    def form_valid(self, form):
+        seatingplan_id = form.cleaned_data["seatingplan"]
+
+        event = self.get_event()
+        if seatingplan_id:
+            event.seating_plan = SeatingPlan.objects.get(id=seatingplan_id)
+            event.settings.seating_choice = form.cleaned_data["users_edit_seatingplan"]
+        else:
+            if event.seating_plan:
+                event.seating_plan = None
+
+        event.save()
+
+        if not self.seats_in_use():
+            if event.seating_plan:
+                generate_seats(event, None, event.seating_plan, dict(), None)
+            else:
+                SeatCategoryMapping.objects.filter(event=event).delete()
+                Seat.objects.filter(event=event).delete()
+
+        messages.success(self.request, _("Your changes have been saved."))
+
+        return super().form_valid(form)
+
+
+class EventMappingForm(forms.Form):
+    pass
+
+
+class EventMapping(EventPermissionRequiredMixin, FormView):
+    template_name = "pretix_manualseats/event/mapping.html"
+    permission = "can_change_orders"
+    form_class = EventMappingForm
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "plugins:pretix_manualseats:mapping",
+            kwargs={
+                "organizer": self.get_event().organizer.slug,
+                "event": self.get_event().slug,
+            },
+        )
+
+    def get_seatingplans(self):
+        return SeatingPlan.objects.filter(organizer=self.request.organizer)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["seatingplan"] = self.get_seating_plan()
+        if self.get_seating_plan():
+            ctx["seatingcats"] = [
+                c.name for c in self.get_seating_plan().get_categories()
+            ]
+        ctx["items"] = self.get_event().items.all()
+
+        return ctx
+
+    def get_event(self) -> Event:
+        return self.request.event
+
+    def get_seating_plan(self) -> Event:
+        return self.get_event().seating_plan
+
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+
+        event = self.get_event()
+
+        if self.get_seating_plan():
+            for cat in self.get_seating_plan().get_categories():
+                mapping = SeatCategoryMapping.objects.filter(
+                    event=event, layout_category=cat.name
+                ).first()
+                if mapping:
+                    initial[f"cat-{cat.name}"] = mapping.product.id
+
+        return initial
+
+    def get_form(self, form_class=None) -> BaseForm:
+        form = typing.cast(EventSeatingPlanSetForm, super().get_form(form_class))
+
+        if self.get_seating_plan():
+            for cat in self.get_seating_plan().get_categories():
+                form.fields[f"cat-{cat.name}"] = forms.ChoiceField(
+                    label=cat.name,
+                    choices=[(i.id, i.name) for i in self.get_event().items.all()]
+                    + [(None, "None")],
+                    required=False,
+                )
+
+        return form
+
+    def form_valid(self, form: BaseForm) -> HttpResponse:
+        event = self.get_event()
+        SeatCategoryMapping.objects.filter(event=event).delete()
+
+        if self.get_seating_plan():
+            for cat in self.get_seating_plan().get_categories():
+                if form.cleaned_data[f"cat-{cat.name}"]:
+                    product = Item.objects.filter(
+                        id=form.cleaned_data[f"cat-{cat.name}"]
+                    ).first()
+                    queryset = SeatCategoryMapping.objects.create(
+                        event=event, layout_category=cat.name, product=product
+                    )
+                    queryset.save()
+
+        messages.success(self.request, _("Your changes have been saved."))
+
+        return super().form_valid(form)
+
+
+class EventImportForm(forms.Form):
+    data = forms.CharField(
+        widget=forms.Textarea(),
+        label="Raw Data",
+        help_text="Header should equal: <code>seat_guid,orderposition_secret</code>",
+        required=False,
+    )
+
+    pass
+
+
+class EventImport(EventPermissionRequiredMixin, FormView):
+    template_name = "pretix_manualseats/event/import.html"
+    permission = "can_change_orders"
+    form_class = EventImportForm
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "plugins:pretix_manualseats:import",
+            kwargs={
+                "organizer": self.get_event().organizer.slug,
+                "event": self.get_event().slug,
+            },
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["seatingplan"] = self.get_seating_plan()
+        if self.get_seating_plan():
+            ctx["seatingcats"] = [
+                c.name for c in self.get_seating_plan().get_categories()
+            ]
+        ctx["items"] = self.get_event().items.all()
+        ctx["seats"] = Seat.objects.filter(event=self.get_event())
+
+        return ctx
+
+    def get_event(self) -> Event:
+        return self.request.event
+
+    def get_seating_plan(self) -> Event:
+        return self.get_event().seating_plan
+
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+
+        orderpositions_with_seats = OrderPosition.objects.filter(
+            order__event=self.get_event(), seat__isnull=False
+        )
+        if orderpositions_with_seats:
+            initial["data"] = "seat_guid,orderposition_secret\n" + "\n".join(
+                [
+                    pos.seat.seat_guid + "," + pos.secret
+                    for pos in orderpositions_with_seats.select_related("seat")
+                ]
+            )
+
+        return initial
+
+    def form_valid(self, form: BaseForm) -> HttpResponse:
+        event = self.get_event()
+
+        if not event.seating_plan:
+            messages.error(self.request, _("No seating plan"))
+            return super().form_invalid(form)
+
+        data = typing.cast(str, form.cleaned_data["data"])
+        lines = data.split("\n")
+        lines = [line.strip() for line in lines]
+
+        if len(lines) <= 1:
+            OrderPosition.objects.filter(order__event=event).update(seat=None)
+            messages.success(self.request, _("Removed all seat assignments."))
+            return super().form_valid(form)
+
+        if not (lines[0].startswith("seat_guid,orderposition_secret")):
+            messages.error(
+                self.request,
+                _(
+                    "The CSV input format is invalid. Please check if you have included the headers."
+                ),
+            )
+            return super().form_invalid(form)
+
+        for line in lines[1:]:
+            (seat_guid, orderposition_secret) = [
+                line.strip() for line in line.split(",")
+            ]
+            order = OrderPosition.objects.filter(secret=orderposition_secret).first()
+            seat = Seat.objects.filter(seat_guid=seat_guid).first()
+            if not order:
+                messages.error(
+                    self.request, _(f"Unable to match order ({orderposition_secret}).")
+                )
+                return super().form_invalid(form)
+            if not seat:
+                messages.error(self.request, _(f"Unable to match seat ({seat_guid})."))
+                return super().form_invalid(form)
+
+            order.seat = seat
+            order.save()
+
+        messages.success(self.request, _("Your changes have been saved."))
+
+        return super().form_valid(form)
 
 
 class OrganizerSeatingPlanList(OrganizerPermissionRequiredMixin, ListView):
@@ -39,8 +326,10 @@ class OrganizerSeatingPlanList(OrganizerPermissionRequiredMixin, ListView):
     permission = "can_change_organizer_settings"
 
     def get_queryset(self):
-        return SeatingPlan.objects.filter(organizer=self.request.organizer).order_by(
-            "id"
+        return (
+            SeatingPlan.objects.filter(organizer=self.request.organizer)
+            .order_by("id")
+            .annotate(eventcount=Count("events"), subeventcount=Count("subevents"))
         )
 
 
@@ -68,41 +357,8 @@ class SeatingPlanDetailMixin:
             kwargs={"organizer": self.request.organizer.slug},
         )
 
-
-# class OrganizerPlanAdd(OrganizerPermissionRequiredMixin, CreateView):
-#     model = SeatingPlan
-#     form_class = SeatingPlanForm
-#     template_name = "pretix_manualseats/organizer/form.html"
-#     permission = "can_change_organizer_settings"
-
-#     def get_context_data(self, **kwargs):
-#         ctx = super().get_context_data()
-#         return ctx
-
-#     def get_success_url(self) -> str:
-#         return reverse(
-#             "plugins:pretix_manualseats:index",
-#             kwargs={
-#                 "organizer": self.request.organizer.slug,
-#             },
-#         )
-
-#     @transaction.atomic
-#     def form_valid(self, form):
-#         form.instance.organizer = self.request.organizer
-#         messages.success(self.request, _("The new seating plan has been added."))
-#         ret = super().form_valid(form)
-#         form.instance.log_action(
-#             "pretix_seatingplan.seatingplan.added",
-#             data=dict(form.cleaned_data),
-#             user=self.request.user,
-#         )
-#         self.request.organizer.cache.clear()
-#         return ret
-
-#     def form_invalid(self, form):
-#         messages.error(self.request, _("Your changes could not be saved."))
-#         return super().form_invalid(form)
+    def is_in_use(self) -> bool:
+        return self.get_object().events.exists() or self.get_object().subevents.exists()
 
 
 class OrganizerPlanAdd(OrganizerPermissionRequiredMixin, CreateView):
@@ -164,40 +420,6 @@ class OrganizerPlanAdd(OrganizerPermissionRequiredMixin, CreateView):
         return kwargs
 
 
-# class LayoutCreate(EventPermissionRequiredMixin, CreateView):
-#     @transaction.atomic
-#     def form_valid(self, form):
-#         form.instance.event = self.request.event
-#         if not self.request.event.badge_layouts.filter(default=True).exists():
-#             form.instance.default = True
-#         messages.success(self.request, _("The new badge layout has been created."))
-#         super().form_valid(form)
-#         if form.instance.background and form.instance.background.name:
-#             form.instance.background.save("background.pdf", form.instance.background)
-
-#     def get_context_data(self, **kwargs):
-#         return super().get_context_data(**kwargs)
-
-#     @cached_property
-#     def copy_from(self):
-#         if self.request.GET.get("copy_from") and not getattr(self, "object", None):
-#             try:
-#                 return self.request.event.badge_layouts.get(pk=self.request.GET.get("copy_from"))
-#             except BadgeLayout.DoesNotExist:
-#                 pass
-
-#     def get_form_kwargs(self):
-#         kwargs = super().get_form_kwargs()
-
-#         if self.copy_from:
-#             i = modelcopy(self.copy_from)
-#             i.pk = None
-#             i.default = False
-#             kwargs["instance"] = i
-#             kwargs.setdefault("initial", {})
-#         return kwargs
-
-
 class OrganizerPlanEdit(
     OrganizerPermissionRequiredMixin, SeatingPlanDetailMixin, UpdateView
 ):
@@ -216,17 +438,47 @@ class OrganizerPlanEdit(
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data()
+
+        self.get_object()
+
+        ctx["inuse"] = self.is_in_use()
+
         return ctx
+
+    def get_form(self, form_class: type[BaseModelForm] | None = None) -> BaseModelForm:
+        form = super().get_form(form_class)
+
+        form.fields["layout"].disabled = self.is_in_use()
+
+        if self.is_in_use():
+            form.fields["layout"].help_text = _(
+                "You cannot change this plan any more since it is already used in some of your events. Please create a copy instead."
+            )
+
+        return form
 
     @transaction.atomic
     def form_valid(self, form):
+        if (
+            self.is_in_use()
+            and self.request.POST.get("layout")
+            and self.get_object().layout != self.request.POST["layout"]
+        ):
+            messages.error(
+                self.request,
+                _("Your changes could not be saved. The plan already is in use."),
+            )
+            return super().form_invalid(form)
+
         messages.success(self.request, _("Your changes have been saved."))
+
         if form.has_changed():
             self.object.log_action(
                 "pretix_seatingplan.seatingplan.changed",
                 data=dict(form.cleaned_data),
                 user=self.request.user,
             )
+
         self.request.organizer.cache.clear()
         return super().form_valid(form)
 
@@ -243,8 +495,24 @@ class OrganizerPlanDelete(
     context_object_name = "seatingplan"
     permission = "can_change_organizer_settings"
 
+    def get_context_data(self, **kwargs: Any):
+        ctx = super().get_context_data(**kwargs)
+
+        ctx["inuse"] = self.is_in_use()
+
+        return ctx
+
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
+        if self.is_in_use():
+            messages.error(
+                self.request,
+                _(
+                    "You cannot delete the seating plan because it is used in some of your events."
+                ),
+            )
+            return HttpResponseRedirect(self.get_success_url())
+
         self.object = self.get_object()
         self.object.log_action(
             "pretix_manualseats.seatingplan.deleted", user=self.request.user
