@@ -1,7 +1,7 @@
-$(function () {
-    const layoutUpload = $("#layout_upload");
+$(() => {
+    const uploadLayoutBtn = $("#upload_layout");
+    const downloadLayoutBtn = $("#download_layout");
     const idLayout = $("#id_layout");
-    const layoutDownload = $("#layout_download");
 
     function searchJson(json, key) {
         if (typeof json === 'object' || json !== null) {
@@ -10,36 +10,50 @@ $(function () {
         }
     }
 
-    function updateLayoutDownloadButton() {
-        layoutDownload.prop("disabled", !idLayout.val());
+    function updateDownloadButton() {
+        downloadLayoutBtn.prop("disabled", !idLayout.val());
     }
 
-    layoutUpload.prop("disabled", idLayout.prop("disabled"));
-    idLayout.on("change", updateLayoutDownloadButton);
-    updateLayoutDownloadButton();
+    idLayout.on("change", updateDownloadButton());
 
-    layoutUpload.on("click", function () {
-        const input = $("<input>", { type: "file", accept: ".json" });
-        input.on("change", function (e) {
-            const fileReader = new FileReader();
-            fileReader.onload = () => {
-                idLayout.val(fileReader.result);
-                updateLayoutDownloadButton();
+    uploadLayoutBtn.on("click", () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".json";
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const contents = e.target.result;
+                idLayout.val(contents);
+                updateDownloadButton();
             };
-            fileReader.readAsText(input[0].files[0]);
-        });
+            reader.readAsText(file);
+        };
         input.click();
     });
 
-    layoutDownload.on("click", function () {
-        const url = URL.createObjectURL(new Blob([idLayout.val()]));
+    downloadLayoutBtn.on("click", () => {
+        const data = idLayout.val();
         const name = searchJson(idLayout.val(), "name");
         const filename = name ? (name + ".json") : "seatingplan.json";
-        const a = $("<a>", { style: "display: none", href: url, download: filename });
-        $("body").append(a);
-        a[0].click();
-        URL.revokeObjectURL(url);
+        download(data, filename);
+    });
+
+    clearAssignedSeatsBtn.on("click", () => {
+        idLayout.val("");
+        updateDownloadButton();
     });
 });
 
-
+const download = (data, filename) => {
+    const url = URL.createObjectURL(new Blob([data], { type: "text/csv" }));
+    const aref = document.createElement("a");
+    aref.hidden = true;
+    aref.href = url;
+    aref.download = filename;
+    document.body.appendChild(aref);
+    aref.click();
+    URL.revokeObjectURL(url);
+    document.body.removeChild(aref);
+};
