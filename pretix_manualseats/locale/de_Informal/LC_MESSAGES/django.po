@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-07 19:01+0100\n"
+"POT-Creation-Date: 2023-07-26 04:39+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Moritz Lerch\n"
 "Language-Team: \n"
@@ -10,3 +10,281 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: pretix_manualseats/apps.py:12 pretix_manualseats/signals.py:19
+#: pretix_manualseats/templates/pretix_manualseats/event/import.html:7
+#: pretix_manualseats/templates/pretix_manualseats/event/import.html:9
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:7
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:9
+#: pretix_manualseats/templates/pretix_manualseats/event/mapping.html:7
+#: pretix_manualseats/templates/pretix_manualseats/event/mapping.html:9
+#: pretix_manualseats/templates/pretix_manualseats/organizer/index.html:9
+msgid "Manual Seats"
+msgstr "Manuelle Sitzplätze"
+
+#: pretix_manualseats/apps.py:14
+msgid "Manually assign tickets to seats."
+msgstr "Tickets manuell Sitzplätzen zuweisen."
+
+#: pretix_manualseats/signals.py:31
+msgid "Seating Mapping"
+msgstr "Sitzplatz-Zuordnung"
+
+#: pretix_manualseats/signals.py:43
+msgid "Seating Importer"
+msgstr "Sitzplatz-Import"
+
+#: pretix_manualseats/signals.py:70
+#: pretix_manualseats/templates/pretix_manualseats/organizer/index.html:6
+#: pretix_manualseats/templates/pretix_manualseats/organizer/index.html:9
+msgid "Seating Plans"
+msgstr "Sitzpläne"
+
+#: pretix_manualseats/templates/pretix_manualseats/event/import.html:14
+msgid "Seating Plan Import"
+msgstr "Sitzplan-Import"
+
+#: pretix_manualseats/templates/pretix_manualseats/event/import.html:21
+msgid "Download CSV"
+msgstr "CSV herunterladen"
+
+#: pretix_manualseats/templates/pretix_manualseats/event/import.html:26
+msgid "Upload CSV"
+msgstr "CSV hochladen"
+
+#: pretix_manualseats/templates/pretix_manualseats/event/import.html:36
+msgid "Clear assigned seats"
+msgstr "Zugewiesene Sitzplätze leeren"
+
+#: pretix_manualseats/templates/pretix_manualseats/event/import.html:43
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:31
+#: pretix_manualseats/templates/pretix_manualseats/event/mapping.html:20
+#: pretix_manualseats/templates/pretix_manualseats/organizer/form.html:53
+msgid "Save"
+msgstr "Speichern"
+
+#: pretix_manualseats/templates/pretix_manualseats/event/import.html:50
+#: pretix_manualseats/templates/pretix_manualseats/event/mapping.html:28
+msgid "Please select a seating plan for your current event."
+msgstr "Bitte wähle einen Sitzplan für die aktuelle Veranstaltung aus."
+
+#: pretix_manualseats/templates/pretix_manualseats/event/import.html:52
+#: pretix_manualseats/templates/pretix_manualseats/event/mapping.html:30
+#, fuzzy
+#| msgid "Delete seating plan"
+msgid "Manage event seating plan"
+msgstr "Sitzplan löschen"
+
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:13
+#, python-format
+msgid ""
+"You have imported at least one seating plan. %(length)s seating plans are "
+"present."
+msgstr ""
+"Du hast mindestens einen Sitzplan importiert. %(length)s Sitzpläne sind "
+"vorhanden."
+
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:17
+msgid ""
+"You have imported at least one seating plan. Only one seating plan is "
+"present."
+msgstr ""
+"Du hast mindestens einen Sitzplan importiert. Genau ein Sitzplan ist "
+"vorhanden."
+
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:24
+msgid "Seating plan selection"
+msgstr "Auswahl des Sitzplans"
+
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:38
+msgid ""
+"There are currently no seating plans configured on your organizer account."
+msgstr "Derzeit sind keine Sitzpläne in deinem Veranstalterkonto konfiguriert."
+
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:42
+msgid "Manage seating plans"
+msgstr "Sitzpläne verwalten"
+
+#: pretix_manualseats/templates/pretix_manualseats/event/mapping.html:13
+msgid "Seating Plan Mapping"
+msgstr "Sitzplan-Zuordnung"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/delete.html:4
+#: pretix_manualseats/templates/pretix_manualseats/organizer/delete.html:6
+msgid "Delete seating plan"
+msgstr "Sitzplan löschen"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/delete.html:11
+#: pretix_manualseats/views.py:512
+msgid ""
+"You cannot delete the seating plan because it is used in one of your events."
+msgstr ""
+"Du kannst den Sitzplan nicht löschen, da er in einer deiner Veranstaltungen "
+"verwendet wird."
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/delete.html:16
+#, python-format
+msgid "Are you sure you want to delete the seating plan „%(name)s“?"
+msgstr "Bist du sicher, dass du den Sitzplan „%(name)s“ löschen möchtest?"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/delete.html:22
+#: pretix_manualseats/templates/pretix_manualseats/organizer/form.html:50
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/delete.html:25
+msgid "Delete"
+msgstr "Löschen"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/form.html:5
+#: pretix_manualseats/templates/pretix_manualseats/organizer/form.html:9
+#: pretix_manualseats/views.py:34
+msgid "Seating Plan"
+msgstr "Sitzplan"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/form.html:11
+#: pretix_manualseats/templates/pretix_manualseats/organizer/index.html:23
+msgid "Add a new seating plan"
+msgstr "Neuen Sitzplan hinzufügen"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/form.html:21
+msgid ""
+"Pretix requires your seating plan to be in a particular format that enables "
+"it to comprehend not just the visual representation of the plan, but also "
+"its structure and numbering details."
+msgstr ""
+"Pretix benötigt deinen Sitzplan in einem bestimmten Format, damit es nicht "
+"nur die visuelle Darstellung versteht, sondern auch die Struktur und die "
+"Nummerierung der Plätze."
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/form.html:24
+msgid ""
+"At <a href=\"https://seats.pretix.eu\">seats.pretix.eu</a>, you can access a "
+"graphical seating plan editor, which allows you to create and edit seating "
+"plans in the specified format. Once you're done, you can save the plan to "
+"your computer and upload it here to associate it with your events."
+msgstr ""
+"Auf <a href=\"https://seats.pretix.eu\">seats.pretix.eu</a> findest du einen "
+"grafischen Sitzplan-Editor, mit dem du Sitzpläne im geforderten Format "
+"erstellen und bearbeiten kannst. Sobald du fertig bist, speichere den Plan "
+"auf deinem Computer und lade ihn hier hoch, um ihn mit deinen "
+"Veranstaltungen zu verknüpfen."
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/form.html:29
+msgid "Go to editor"
+msgstr "Zum Editor"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/form.html:35
+msgid "Download layout"
+msgstr "Layout herunterladen"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/form.html:40
+msgid "Upload layout"
+msgstr "Layout hochladen"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/index.html:13
+msgid "You haven't added any seating plan yet."
+msgstr "Du hast noch keinen Sitzplan hinzugefügt."
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/index.html:19
+msgid "Add seating plan"
+msgstr "Sitzplan hinzufügen"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/index.html:30
+msgid "Name"
+msgstr "Name"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/index.html:41
+msgid "Used"
+msgstr "Verwendet"
+
+#: pretix_manualseats/templates/pretix_manualseats/organizer/index.html:43
+msgid "Not used"
+msgstr "Nicht verwendet"
+
+#: pretix_manualseats/views.py:35
+msgid "Advanced Settings"
+msgstr "Erweiterte Einstellungen"
+
+#: pretix_manualseats/views.py:37
+msgid "Customers can choose their own seats"
+msgstr "Kund*innen können ihre eigenen Plätze wählen"
+
+#: pretix_manualseats/views.py:40
+msgid ""
+"If disabled, you will need to manually assign seats in the backend. Note "
+"that this can mean people will not know their seat after their purchase and "
+"it might not be written on their ticket."
+msgstr ""
+"Wenn deaktiviert, musst du die Plätze manuell im Backend zuweisen. Beachte, "
+"dass dies dazu führen kann, dass die Käufer ihren Platz nach dem Kauf nicht "
+"kennen und er möglicherweise nicht auf ihrem Ticket vermerkt ist."
+
+#: pretix_manualseats/views.py:122 pretix_manualseats/views.py:209
+#: pretix_manualseats/views.py:317 pretix_manualseats/views.py:474
+msgid "Your changes have been saved."
+msgstr "Deine Änderungen wurden gespeichert."
+
+#: pretix_manualseats/views.py:218
+msgid "Header should equal"
+msgstr "Header sollte so aussehen"
+
+#: pretix_manualseats/views.py:278
+msgid "No seating plan"
+msgstr "Kein Sitzplan vorhanden"
+
+#: pretix_manualseats/views.py:287
+msgid "Removed all seat assignments."
+msgstr "Alle Sitzplatzzuweisungen wurden entfernt."
+
+#: pretix_manualseats/views.py:294
+msgid ""
+"The CSV input format is invalid. Please check if you have included the "
+"headers."
+msgstr ""
+"Das CSV-Eingabeformat ist ungültig. Bitte prüfe, ob du die CSV-Header "
+"eingefügt hast."
+
+#: pretix_manualseats/views.py:307
+#, python-brace-format
+msgid "Unable to match order ({orderposition_secret})."
+msgstr "Bestellung ({orderposition_secret}) konnte nicht zugeordnet werden."
+
+#: pretix_manualseats/views.py:311
+#, python-brace-format
+msgid "Unable to match seat ({seat_guid})."
+msgstr "Sitzplatz ({seat_guid}) konnte nicht zugeordnet werden."
+
+#: pretix_manualseats/views.py:353
+msgid "The requested seating plan does not exist."
+msgstr "Der angeforderte Sitzplan existiert nicht."
+
+#: pretix_manualseats/views.py:385
+msgid "The new seating plan has been added."
+msgstr "Der neue Sitzplan wurde hinzugefügt."
+
+#: pretix_manualseats/views.py:396 pretix_manualseats/views.py:487
+msgid "Your changes could not be saved."
+msgstr "Deine Änderungen konnten nicht gespeichert werden."
+
+#: pretix_manualseats/views.py:409
+msgid "The requested seating plan does not exist. Can't copy!"
+msgstr "Der angeforderte Sitzplan existiert nicht. Kopieren nicht möglich!"
+
+#: pretix_manualseats/views.py:456
+msgid ""
+"You cannot change this plan any more since it is already used in one of your "
+"events. Please create a copy instead."
+msgstr ""
+"Du kannst diesen Plan nicht mehr ändern, da er bereits in einer deiner "
+"Veranstaltungen verwendet wird. Erstelle stattdessen eine Kopie."
+
+#: pretix_manualseats/views.py:470
+msgid "Your changes could not be saved. The plan already is in use."
+msgstr ""
+"Deine Änderungen konnten nicht gespeichert werden. Der Plan wird bereits "
+"verwendet."
+
+#: pretix_manualseats/views.py:522
+msgid "The selected plan has been deleted."
+msgstr "Der ausgewählte Sitzplan wurde gelöscht."
