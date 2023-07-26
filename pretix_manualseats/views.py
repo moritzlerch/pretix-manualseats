@@ -215,7 +215,8 @@ class EventImportForm(forms.Form):
     data = forms.CharField(
         widget=forms.Textarea(),
         label="Raw Data",
-        help_text="Header should equal: <code>seat_guid,orderposition_secret</code>",
+        help_text=_("Header should equal")
+        + ": <code>seat_guid,orderposition_secret</code>",
         required=False,
     )
 
@@ -452,7 +453,7 @@ class OrganizerPlanEdit(
 
         if self.is_in_use():
             form.fields["layout"].help_text = _(
-                "You cannot change this plan any more since it is already used in some of your events. Please create a copy instead."
+                "You cannot change this plan any more since it is already used in one of your events. Please create a copy instead."
             )
 
         return form
@@ -508,7 +509,7 @@ class OrganizerPlanDelete(
             messages.error(
                 self.request,
                 _(
-                    "You cannot delete the seating plan because it is used in some of your events."
+                    "You cannot delete the seating plan because it is used in one of your events."
                 ),
             )
             return HttpResponseRedirect(self.get_success_url())

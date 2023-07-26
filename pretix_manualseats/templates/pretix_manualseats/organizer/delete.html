@@ -8,7 +8,9 @@
 		{% csrf_token %}
         {% if inuse %}
             <div class="alert alert-danger">
-                <p>You cannot delete the seating plan because it is used in some of your events.</p>
+                <p>{% blocktrans trimmed %}
+                    You cannot delete the seating plan because it is used in one of your events.
+                {% endblocktrans %}</p>
             </div>
         {% else %}
             <p>{% blocktrans trimmed with name=seatingplan.name %}

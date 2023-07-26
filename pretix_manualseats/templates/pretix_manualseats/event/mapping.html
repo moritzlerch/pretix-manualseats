@@ -25,9 +25,9 @@
     {% else %}
         <div class="alert alert-info">
             <p>
-                Please select a seating plan for your current event.
+                {% trans "Please select a seating plan for your current event." %}
                 <a href="{% url "plugins:pretix_manualseats:index" organizer=request.organizer.slug event=request.event.slug %}" class="btn btn-info" target="_blank">
-                    <span class="fa fa-cogs"></span> Manage event seating plan
+                    <span class="fa fa-cogs"></span> {% trans "Manage event seating plan" %}
                 </a>
             </p>
         </div>
