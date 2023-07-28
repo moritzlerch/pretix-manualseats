@@ -70,10 +70,8 @@ msgstr "Bitte wählen Sie einen Sitzplan für die aktuelle Veranstaltung aus."
 
 #: pretix_manualseats/templates/pretix_manualseats/event/import.html:52
 #: pretix_manualseats/templates/pretix_manualseats/event/mapping.html:30
-#, fuzzy
-#| msgid "Delete seating plan"
 msgid "Manage event seating plan"
-msgstr "Sitzplan löschen"
+msgstr "Sitzplan der Veranstalung auswählen"
 
 
 
