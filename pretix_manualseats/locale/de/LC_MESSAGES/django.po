@@ -57,7 +57,7 @@ msgid "Clear assigned seats"
 msgstr "Zugewiesene Sitzplätze leeren"
 
 #: pretix_manualseats/templates/pretix_manualseats/event/import.html:43
-#: pretix_manualseats/templates/pretix_manualseats/event/index.html:31
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:27
 #: pretix_manualseats/templates/pretix_manualseats/event/mapping.html:20
 #: pretix_manualseats/templates/pretix_manualseats/organizer/form.html:53
 msgid "Save"
@@ -73,25 +73,23 @@ msgstr "Bitte wählen Sie einen Sitzplan für die aktuelle Veranstaltung aus."
 msgid "Manage event seating plan"
 msgstr "Sitzplan der Veranstalung auswählen"
 
-
-
-#: pretix_manualseats/templates/pretix_manualseats/event/index.html:16
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:12
 #, python-format
 msgid "You have imported only one seating plan."
 msgid_plural "You have imported %(counter)s seating plans."
 msgstr[0] "Sie haben genau einen Sitzplan importiert."
 msgstr[1] "Sie haben %(counter)s Sitzpläne importiert."
 
-#: pretix_manualseats/templates/pretix_manualseats/event/index.html:24
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:20
 msgid "Seating plan selection"
 msgstr "Auswahl des Sitzplans"
 
-#: pretix_manualseats/templates/pretix_manualseats/event/index.html:38
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:34
 msgid ""
 "There are currently no seating plans configured on your organizer account."
 msgstr "Derzeit sind keine Sitzpläne in Ihrem Veranstalterkonto konfiguriert."
 
-#: pretix_manualseats/templates/pretix_manualseats/event/index.html:42
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:38
 msgid "Manage seating plans"
 msgstr "Sitzpläne verwalten"
 
