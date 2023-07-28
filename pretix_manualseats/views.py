@@ -509,7 +509,7 @@ class OrganizerPlanDelete(
             messages.error(
                 self.request,
                 _(
-                    "You cannot delete the seating plan because it is used in one of your events."
+                    "You cannot delete the seating plan because it is used in at least one of your events."
                 ),
             )
             return HttpResponseRedirect(self.get_success_url())
