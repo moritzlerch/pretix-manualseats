@@ -9,15 +9,11 @@
     <h1>{% trans "Manual Seats" %} 💺</h1>
     {% if seatingplans|length > 0 %}
         <p>
-            {% if seatingplans|length != 1 %}
-                {% blocktrans trimmed with length=seatingplans|length %}
-                    You have imported at least one seating plan. {{ length }} seating plans are present.
-                {% endblocktrans %}
-            {% else %}
-                {% blocktrans trimmed %}
-                    You have imported at least one seating plan. Only one seating plan is present.
-                {% endblocktrans %}
-            {% endif %}
+            {% blocktrans trimmed count seatingplans|length as counter %}
+                You have imported only one seating plan.
+            {% plural %}
+                You have imported {{ counter }} seating plans.
+            {% endblocktrans %}
         </p><br>
         <form method="post" class="form-horizontal">{% csrf_token %}
             <fieldset>

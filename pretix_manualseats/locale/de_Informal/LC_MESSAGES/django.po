@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-26 04:39+0200\n"
+"POT-Creation-Date: 2023-07-28 14:09+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Moritz Lerch\n"
 "Language-Team: \n"
@@ -75,22 +75,14 @@ msgstr "Bitte wähle einen Sitzplan für die aktuelle Veranstaltung aus."
 msgid "Manage event seating plan"
 msgstr "Sitzplan löschen"
 
-#: pretix_manualseats/templates/pretix_manualseats/event/index.html:13
-#, python-format
-msgid ""
-"You have imported at least one seating plan. %(length)s seating plans are "
-"present."
-msgstr ""
-"Du hast mindestens einen Sitzplan importiert. %(length)s Sitzpläne sind "
-"vorhanden."
 
-#: pretix_manualseats/templates/pretix_manualseats/event/index.html:17
-msgid ""
-"You have imported at least one seating plan. Only one seating plan is "
-"present."
-msgstr ""
-"Du hast mindestens einen Sitzplan importiert. Genau ein Sitzplan ist "
-"vorhanden."
+
+#: pretix_manualseats/templates/pretix_manualseats/event/index.html:16
+#, python-format
+msgid "You have imported only one seating plan."
+msgid_plural "You have imported %(counter)s seating plans."
+msgstr[0] "Du hast genau einen Sitzplan importiert."
+msgstr[1] "Du hast %(counter)s Sitzpläne importiert."
 
 #: pretix_manualseats/templates/pretix_manualseats/event/index.html:24
 msgid "Seating plan selection"
