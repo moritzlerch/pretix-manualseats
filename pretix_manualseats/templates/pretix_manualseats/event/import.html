@@ -18,12 +18,12 @@
                         <div class="btn-group btn-group-justified">
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-default" id="download_assignedseats">
-                                    <span class="fa fa-download"></span> Download CSV
+                                    <span class="fa fa-download"></span> {% trans "Download CSV" %}
                                 </button>
                             </div>
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-default" id="upload_assignedseats">
-                                    <span class="fa fa-upload"></span> Upload CSV
+                                    <span class="fa fa-upload"></span> {% trans "Upload CSV" %}
                                 </button>
                             </div>
                         </div>
@@ -33,7 +33,7 @@
                 <div class="form-group">
                     <div class="col-md-9 col-md-offset-3">
                         <button type="button" class="btn btn-danger" id="clear_assignedseats">
-                            <span class="fa fa-eraser"></span> Clear assigned seats
+                            <span class="fa fa-eraser"></span> {% trans "Clear assigned seats" %}
                         </button>
                     </div>
                 </div>
@@ -47,9 +47,9 @@
     {% else %}
         <div class="alert alert-info">
             <p>
-                Please select a seating plan for your current event.
+                {% trans "Please select a seating plan for your current event." %}
                 <a href="{% url "plugins:pretix_manualseats:index" organizer=request.organizer.slug event=request.event.slug %}" class="btn btn-info" target="_blank">
-                    <span class="fa fa-cogs"></span> Manage event seating plan
+                    <span class="fa fa-cogs"></span> {% trans "Manage event seating plan" %}
                 </a>
             </p>
         </div>

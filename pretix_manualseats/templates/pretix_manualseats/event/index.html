@@ -9,7 +9,11 @@
     <h1>{% trans "Manual Seats" %} 💺</h1>
     {% if seatingplans|length > 0 %}
         <p>
-            You have imported at least one seating plan. {{ seatingplans|length }} seating plan{% if seatingplans|length != 1 %}s are{% else %} is {% endif %} present.
+            {% blocktrans trimmed count seatingplans|length as counter %}
+                You have imported only one seating plan.
+            {% plural %}
+                You have imported {{ counter }} seating plans.
+            {% endblocktrans %}
         </p><br>
         <form method="post" class="form-horizontal">{% csrf_token %}
             <fieldset>
@@ -27,11 +31,11 @@
     {% else %}
         <div class="alert alert-info">
             <p>
-                There are currently no seating plans configured on your organizer account.
+                {% trans "There are currently no seating plans configured on your organizer account." %}
             </p>
             <p>
                 <a href="{% url "plugins:pretix_manualseats:index" organizer=request.organizer.slug %}" class="btn btn-default" target="_blank">
-                    Manage seating plans
+                    {% trans "Manage seating plans" %}
                 </a>
             </p>
         </div>
