@@ -453,7 +453,7 @@ class OrganizerPlanEdit(
 
         if self.is_in_use():
             form.fields["layout"].help_text = _(
-                "You cannot change this plan any more since it is already used in one of your events. Please create a copy instead."
+                "You cannot change this plan any more since it is already used in at least one of your events. Please create a copy instead."
             )
 
         return form
