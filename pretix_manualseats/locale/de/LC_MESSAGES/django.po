@@ -71,7 +71,7 @@ msgstr "Bitte wählen Sie einen Sitzplan für die aktuelle Veranstaltung aus."
 #: pretix_manualseats/templates/pretix_manualseats/event/import.html:52
 #: pretix_manualseats/templates/pretix_manualseats/event/mapping.html:30
 msgid "Manage event seating plan"
-msgstr "Sitzplan der Veranstalung auswählen"
+msgstr "Sitzplan der Veranstaltung auswählen"
 
 #: pretix_manualseats/templates/pretix_manualseats/event/index.html:12
 #, python-format
