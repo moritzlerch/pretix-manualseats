@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-29 00:31+0200\n"
+"POT-Creation-Date: 2023-07-30 19:45+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Moritz Lerch\n"
 "Language-Team: \n"
@@ -210,10 +210,18 @@ msgstr ""
 "dem Kauf nicht kennen und er möglicherweise nicht auf ihrem Ticket vermerkt "
 "ist."
 
+#: pretix_manualseats/views.py:89 pretix_manualseats/views.py:188
+msgid "None"
+msgstr "Kein Sitzplan"
+
 #: pretix_manualseats/views.py:122 pretix_manualseats/views.py:209
 #: pretix_manualseats/views.py:317 pretix_manualseats/views.py:474
 msgid "Your changes have been saved."
 msgstr "Ihre Änderungen wurden gespeichert."
+
+#: pretix_manualseats/views.py:217
+msgid "Raw Data"
+msgstr "Rohdaten"
 
 #: pretix_manualseats/views.py:218
 msgid "Header should equal"
@@ -260,6 +268,10 @@ msgstr "Ihre Änderungen konnten nicht gespeichert werden."
 #: pretix_manualseats/views.py:409
 msgid "The requested seating plan does not exist. Can't copy!"
 msgstr "Der angeforderte Sitzplan existiert nicht. Kopieren nicht möglich!"
+
+#: pretix_manualseats/views.py:418
+msgid "Copy"
+msgstr "Kopie"
 
 #: pretix_manualseats/views.py:456
 msgid ""

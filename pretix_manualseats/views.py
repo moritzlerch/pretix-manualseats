@@ -86,7 +86,7 @@ class EventIndex(EventPermissionRequiredMixin, FormView):
     def get_form(self, form_class=None) -> BaseForm:
         form = typing.cast(EventSeatingPlanSetForm, super().get_form(form_class))
 
-        form.fields["seatingplan"].choices = [(None, "None")] + [
+        form.fields["seatingplan"].choices = [(None, _("None"))] + [
             (i.id, i.name) for i in self.get_seatingplans()
         ]
 
@@ -185,7 +185,7 @@ class EventMapping(EventPermissionRequiredMixin, FormView):
                 form.fields[f"cat-{cat.name}"] = forms.ChoiceField(
                     label=cat.name,
                     choices=[(i.id, i.name) for i in self.get_event().items.all()]
-                    + [(None, "None")],
+                    + [(None, _("None"))],
                     required=False,
                 )
 
@@ -214,7 +214,7 @@ class EventMapping(EventPermissionRequiredMixin, FormView):
 class EventImportForm(forms.Form):
     data = forms.CharField(
         widget=forms.Textarea(),
-        label="Raw Data",
+        label=_("Raw Data"),
         help_text=_("Header should equal")
         + ": <code>seat_guid,orderposition_secret</code>",
         required=False,
@@ -415,7 +415,7 @@ class OrganizerPlanAdd(OrganizerPermissionRequiredMixin, CreateView):
         if self.copy_from:
             i = modelcopy(self.copy_from)
             i.id = None
-            i.name += " (Copy)"
+            i.name += " (" + _("Copy") + ")"
             kwargs["instance"] = i
             kwargs.setdefault("initial", {})
         return kwargs
