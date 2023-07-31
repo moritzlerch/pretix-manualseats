@@ -211,7 +211,7 @@ class EventMapping(EventPermissionRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class EventImportForm(forms.Form):
+class EventAssignForm(forms.Form):
     data = forms.CharField(
         widget=forms.Textarea(),
         label=_("Raw Data"),
@@ -223,14 +223,14 @@ class EventImportForm(forms.Form):
     pass
 
 
-class EventImport(EventPermissionRequiredMixin, FormView):
-    template_name = "pretix_manualseats/event/import.html"
+class EventAssign(EventPermissionRequiredMixin, FormView):
+    template_name = "pretix_manualseats/event/assign.html"
     permission = "can_change_orders"
-    form_class = EventImportForm
+    form_class = EventAssignForm
 
     def get_success_url(self) -> str:
         return reverse(
-            "plugins:pretix_manualseats:import",
+            "plugins:pretix_manualseats:assign",
             kwargs={
                 "organizer": self.get_event().organizer.slug,
                 "event": self.get_event().slug,

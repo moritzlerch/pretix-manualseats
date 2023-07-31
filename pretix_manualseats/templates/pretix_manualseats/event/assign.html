@@ -4,14 +4,14 @@
 {% load static %}
 {% load bootstrap3 %}
 {% load eventurl %}
-{% block title %}{% trans "Seating Plan Import" %}{% endblock %}
+{% block title %}{% trans "Seat Assignment" %}{% endblock %}
 {% block content %}
     <h1>{% trans "Manual Seats" %} 💺</h1>
 
     {% if seatingplan %}
        <form method="post" class="form-horizontal">{% csrf_token %}
             <fieldset>
-                <legend>{% trans "Seating Plan Import" %}</i></legend>
+                <legend>{% trans "Assignment of Seats to Order Positions" %}</i></legend>
                 
                 <div class="form-group">
                     <div class="col-md-9 col-md-offset-3">

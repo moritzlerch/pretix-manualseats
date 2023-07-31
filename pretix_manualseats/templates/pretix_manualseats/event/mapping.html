@@ -4,13 +4,13 @@
 {% load static %}
 {% load bootstrap3 %}
 {% load eventurl %}
-{% block title %}{% trans "Seating Plan Mapping" %}{% endblock %}
+{% block title %}{% trans "Category Mapping" %}{% endblock %}
 {% block content %}
     <h1>{% trans "Manual Seats" %} 💺</h1>
     {% if seatingplan %}
        <form method="post" class="form-horizontal">{% csrf_token %}
             <fieldset>
-                <legend>{% trans "Seating Plan Mapping" %}</legend>
+                <legend>{% trans "Mapping of Seating Plan Categories to Products" %}</legend>
                 {% for field in form %}
                     {% bootstrap_field field layout="control" %}
                 {% endfor %}

@@ -28,7 +28,7 @@ def control_nav_manualseats(sender, request=None, **kwargs):
             "icon": seat_icon,
             "children": [
                 {
-                    "label": _("Seating Mapping"),
+                    "label": _("Category Mapping"),
                     "url": reverse(
                         "plugins:pretix_manualseats:mapping",
                         kwargs={
@@ -40,9 +40,9 @@ def control_nav_manualseats(sender, request=None, **kwargs):
                     "icon": seat_icon,
                 },
                 {
-                    "label": _("Seating Importer"),
+                    "label": _("Seat Assignment"),
                     "url": reverse(
-                        "plugins:pretix_manualseats:import",
+                        "plugins:pretix_manualseats:assign",
                         kwargs={
                             "event": request.event.slug,
                             "organizer": request.organizer.slug,
