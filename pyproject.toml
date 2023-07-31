@@ -28,8 +28,8 @@ requires = [
 ]
 
 [project.urls]
-homepage = "https://github.com/abi23ohm/pretix-manualseats"
-repository = "https://github.com/abi23ohm/pretix-manualseats"
+homepage = "https://github.com/moritzlerch/pretix-manualseats"
+repository = "https://github.com/moritzlerch/pretix-manualseats"
 
 [tool.setuptools]
 include-package-data = true

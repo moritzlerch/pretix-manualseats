@@ -3,3 +3,6 @@ recursive-include pretix_manualseats/templates *
 recursive-include pretix_manualseats/locale *
 include LICENSE
 exclude .gitlab-ci.yml
+exclude .vscode/settings.json
+exclude .dockerignore
+exclude Dockerfile
