@@ -4,7 +4,7 @@ dynamic = ["version"]
 description = "Manually assign tickets to seats."
 readme = "README.rst"
 license = {file = "LICENSE"}
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 keywords = ["pretix"]
 authors = [
     {name = "Moritz Lerch", email = "dev@moritz-lerch.de"},
