@@ -8,6 +8,8 @@ on:
 jobs:
   publish-pypi:
     runs-on: ubuntu-latest
+    env:
+      DJANGO_SETTINGS_MODULE: production_settings
 
     steps:
       - name: Checkout source
