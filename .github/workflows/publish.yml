@@ -8,8 +8,6 @@ on:
 jobs:
   publish-pypi:
     runs-on: ubuntu-latest
-    env:
-      DJANGO_SETTINGS_MODULE: production_settings
 
     steps:
       - name: Checkout source
@@ -19,30 +17,27 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: "3.x"
-      
+
       - uses: actions/cache@v1
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      
+
       - name: Install system dependencies
         run: sudo apt update && sudo apt install -y gettext
-      
-      - name: Install pretix
-        run: pip3 install pretix
-      
+
       - name: Install build dependencies
-        run: pip3 install pretix-plugin-build twine check-manifest pip setuptools wheel -Ue .
-      
+        run: pip3 install pretix-plugin-build twine check-manifest pip setuptools wheel build -U
+
       - name: Run check-manifest
         run: check-manifest .
         working-directory: .
-      
+
       - name: Build package
-        run: python setup.py sdist
-      
+        run: python -m build
+
       - name: Publish package to PyPi
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
         with:
